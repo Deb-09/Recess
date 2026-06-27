@@ -1,0 +1,41 @@
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.orm import declarative_base
+
+from app.core.config import settings
+
+# Determine engine arguments based on DB scheme
+engine_args = {}
+if settings.DATABASE_URL.startswith("sqlite"):
+    # SQLite check_same_thread setting is required for multiple threads/async loops
+    engine_args["connect_args"] = {"check_same_thread": False}
+
+# Create async engine
+engine = create_async_engine(
+    settings.DATABASE_URL,
+    echo=False,
+    **engine_args
+)
+
+# Async session maker
+SessionLocal = async_sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+    autocommit=False,
+    autoflush=False
+)
+
+# Base class for DB models
+Base = declarative_base()
+
+async def get_db():
+    """Dependency injection generator to yield active database sessions."""
+    async with SessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
