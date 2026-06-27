@@ -60,6 +60,12 @@ origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+import os
+frontend_url = os.environ.get("FRONTEND_URL")
+if frontend_url:
+    origins.append(frontend_url)
+    if frontend_url.endswith("/"):
+        origins.append(frontend_url[:-1])
 
 app.add_middleware(
     CORSMiddleware,
