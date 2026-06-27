@@ -258,7 +258,7 @@ async def lock_away_worry(
     db: AsyncSession = Depends(get_db)
 ):
     encrypted_thought = encrypt_text(worry_in.thought)
-    locked_until = datetime.now(timezone.utc) + timedelta(hours=worry_in.lock_duration_hours)
+    locked_until = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(hours=worry_in.lock_duration_hours)
     
     new_worry = Worry(
         user_id=current_user.id,
@@ -290,12 +290,12 @@ async def list_worries(
     )
     worries = result.scalars().all()
     
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     response_list = []
     
     for w in worries:
         is_locked = w.is_locked
-        if is_locked and w.locked_until and now >= w.locked_until.replace(tzinfo=timezone.utc):
+        if is_locked and w.locked_until and now >= w.locked_until:
             # Unlock automatically if time has elapsed
             w.is_locked = False
             is_locked = False

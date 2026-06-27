@@ -13,7 +13,7 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     name = Column(String, nullable=False)
     target_exam = Column(String, default="General")  # e.g., JEE, NEET, UPSC, Board Exams
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     # Relationships
     journals = relationship("JournalEntry", back_populates="user", cascade="all, delete-orphan")
@@ -37,7 +37,7 @@ class JournalEntry(Base):
     sentiment_label = Column(String, default="Neutral")  # Positive, Calming, Anxious, Stressed, etc.
     cognitive_distortions = Column(JSON, default=list)  # e.g. ["Catastrophizing", "Black-and-White Thinking"]
     
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     # Relationships
     user = relationship("User", back_populates="journals")
@@ -65,7 +65,7 @@ class Worry(Base):
     is_locked = Column(Boolean, default=True)
     locked_until = Column(DateTime, nullable=True)  # Lock duration
     
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     # Relationships
     user = relationship("User", back_populates="worries")
@@ -84,7 +84,7 @@ class Gratitude(Base):
     
     # Gratitude items do not strictly need encryption, but are stored safely
     win_text = Column(String, nullable=False)  # Tiny daily non-exam win
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     # Relationships
     user = relationship("User", back_populates="gratitudes")
@@ -98,7 +98,7 @@ class ChatMessage(Base):
     
     role = Column(String, nullable=False)  # 'user' or 'bono'
     message_text = Column(String, nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     # Relationships
     user = relationship("User", back_populates="chats")
